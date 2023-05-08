@@ -4,6 +4,15 @@ import SCNavbar from "./Navbar.styled";
 import useLogout from "../../hooks/useLogout";
 import { useState } from "react";
 import useTagContext from "../../hooks/useTagContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faClose,
+  faGear,
+  faPlus,
+  faArrowRightFromBracket,
+  faArrowRightToBracket,
+  faHouse,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
   const log_out = useLogout();
@@ -31,12 +40,25 @@ export default function Navbar() {
         <button className="sidebar-control" onClick={handle_sidebar_controls}>
           hi
         </button>
-        <Link to="/home/1">Home</Link>
+        <Link to="/home/1">
+          <FontAwesomeIcon icon={faHouse} />
+          <span>Home</span>
+        </Link>
         {user ? (
           <div className="links">
-            <Link to="/settings">Settings</Link>
-            <Link to="/new-counter">New Counter</Link>
-            <button onClick={() => log_out()}>Log out</button>
+            <Link to="/settings">
+              {" "}
+              <FontAwesomeIcon icon={faGear} />
+              <span>Settings</span>
+            </Link>
+            <Link to="/new-counter">
+              <FontAwesomeIcon icon={faPlus} />
+              <span>New Counter</span>
+            </Link>
+            <button onClick={() => log_out()}>
+              <FontAwesomeIcon icon={faArrowRightFromBracket} />
+              <span>Log out</span>
+            </button>
           </div>
         ) : (
           <div className="links">
