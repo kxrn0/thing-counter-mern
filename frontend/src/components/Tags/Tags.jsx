@@ -66,7 +66,7 @@ export default function Tags({ tags, setTags }) {
           </div>
         ))}
       </div>
-      <Drawer message="Add existing tags">
+      <Drawer top="Add existing tags">
         {existingTags.map((tag) => {
           const reg = new RegExp(`^${tag.name}$`, "i");
 

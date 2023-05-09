@@ -88,6 +88,13 @@ exports.get_tags = async (req, res) => {
   }
 };
 
+exports.delete_tag = async (req, res) => {
+  const id = req.params.id;
+  const tag = await Tag.findById(id);
+
+  res.status(200).json({ tag });
+};
+
 exports.get_count = async (req, res) => {
   const userId = req.user._id;
   const count = await Counter.countDocuments({ userId });

@@ -1,17 +1,25 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import reimagine from "../../utilities/reimagine";
+import count from "../../utilities/count";
 import useAuthContext from "../../hooks/useAuthContext";
 import useCounterContext from "../../hooks/useCounterContext";
 import SCCounter from "./Counter.styled";
+import Dialog from "../../components/Dialog/Dialog";
+import Image from "../../components/Image/Image";
+import Drawer from "../../components/Drawer/Drawer";
+import useTagContext from "../../hooks/useTagContext";
 
 export default function Counter() {
   const [url, setUrl] = useState(null);
   const [displaying, setDisplaying] = useState(false);
   const [counter, setCounter] = useState(null);
-  const { state: counterState } = useLocation();
+  const { state: counterId } = useLocation();
   const { user } = useAuthContext();
   const { counters, dispatch: dispatch_counter_action } = useCounterContext();
+  const { tags } = useTagContext();
   const navigate = useNavigate();
   const imageRef = useRef(null);
 
@@ -40,32 +48,18 @@ export default function Counter() {
     }
   }
 
-  async function count(amount) {
-    try {
-      const response = await fetch(
-        `http://localhost:9999/api/counters/${counter._id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ amount }),
-        }
-      );
-      const json = await response.json();
-      const { counter: counterRes } = json;
+  async function count_internally(event, amount) {
+    event.preventDefault();
 
-      if (response.ok) {
-        dispatch_counter_action({
-          type: "COUNT",
-          payload: { counterId: counterRes._id, count: counterRes.count },
-        });
-        setCounter((prev) => ({ ...prev, count: counterRes.count }));
-      } else {
-        console.log("not ok");
-        throw new Error("Error updating counter!");
-      }
+    try {
+      const res = await count(
+        amount,
+        counter._id,
+        user.token,
+        dispatch_counter_action
+      );
+
+      setCounter((prev) => ({ ...prev, count: res.count }));
     } catch (error) {
       console.log(error);
     }
@@ -111,7 +105,7 @@ export default function Counter() {
   }
 
   useEffect(() => {
-    setCounter(counterState);
+    setCounter(counters.find((counter) => counter._id === counterId));
   }, []);
 
   useEffect(() => {
@@ -164,13 +158,17 @@ export default function Counter() {
     <SCCounter>
       {counter && (
         <div>
+          <Dialog shown={displaying} close={() => setDisplaying(false)}>
+            <Image src={imageRef.current} alt={counter.name} />
+          </Dialog>
+          {/* <button>open dialog</button>
           <button onClick={() => console.log(counter)}>counter</button>
           <button onClick={delete_counter}>Delete Counter</button>
           <img src={url} alt="counter image" />
           <p>Counter page</p>
-          <button onClick={() => count(1)}>+</button>
+          <button onClick={(event) => count_internally(event, 1)}>+</button>
           <p>count: {counter.count}</p>
-          <button onClick={() => count(-1)}>-</button>
+          <button onClick={(event) => count_internally(event, -1)}>-</button>
           <p>name: {counter.name}</p>
           <p>description: {counter.description}</p>
           <p>index: ${counter.index}</p>
@@ -179,10 +177,52 @@ export default function Counter() {
           </button>
           {counter.tags.map((tag) => (
             <span key={tag._id}>~~{tag.name}~~</span>
-          ))}
-          {displaying && (
-            <img src={imageRef.current} alt="counter full image" />
-          )}
+          ))} */}
+          {/* <Image src={url} alt={counter.name} /> */}
+
+          <button>
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+          <div className="head">
+            <div onClick={open_image}>
+              <Image src={url} alt={counter.name} />
+            </div>
+            <div>
+              <h2 className="name">{counter.name}</h2>
+              <p className="description">{counter.description}</p>
+            </div>
+          </div>
+          <div className="count">
+            <button>+</button>
+            <p>{counter.count}</p>
+            <button>-</button>
+          </div>
+          <div className="tags-section">
+            <label htmlFor="tag-input">
+              <input type="text" id="tag-input" />
+              <button>#add_tag</button>
+            </label>
+            <div className="current-tags">
+              {counter.tags.map((tag) => (
+                <span key={tag.name} className="tag">
+                  <button>x</button>
+                  {tag.name}
+                </span>
+              ))}
+              <Drawer top="Add from existing tags">
+                {tags
+                  .filter(
+                    (tag) =>
+                      !counter.tags.find((other) => other.name === tag.name)
+                  )
+                  .map((tag) => (
+                    <span key={tag.name} className="tag">
+                      <button>#{tag.name}</button>
+                    </span>
+                  ))}
+              </Drawer>
+            </div>
+          </div>
         </div>
       )}
     </SCCounter>

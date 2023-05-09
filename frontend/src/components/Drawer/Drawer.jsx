@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHashtag, faClose } from "@fortawesome/free-solid-svg-icons";
 import SCDrawer from "./Drawer.styled";
 
-export default function Drawer({ message, duration = 0.33, children }) {
+export default function Drawer({ top, duration = 0.33, children }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const heightRef = useRef(null);
@@ -19,14 +21,14 @@ export default function Drawer({ message, duration = 0.33, children }) {
 
   return (
     <SCDrawer>
-      <div className="top">
-        <p>{message}</p>
+      <div className={`top ${open ? "open" : ""}`}>
+        <div className="container">{top}</div>
         <button
-          className="disclose-button"
+          className="button-of-disclosure"
           type="button"
           onClick={handle_click}
         >
-          hi
+          <FontAwesomeIcon icon={open ? faClose : faHashtag} />
         </button>
       </div>
       <div

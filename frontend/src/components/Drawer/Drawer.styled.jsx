@@ -15,14 +15,11 @@ const SCDrawer = styled.div`
   }
 
   .bottom {
-    background: #63abff;
     max-height: 0;
     transition: max-height var(--duration);
     overflow: hidden;
 
     .container {
-      /* background: #f39244;
-      padding: 10px; */
       transform: translateY(-100%);
       transition: transform var(--duration);
     }

@@ -16,6 +16,8 @@ router.get("/image/:id", counterController.get_image);
 
 router.get("/tags", counterController.get_tags);
 
+router.delete("/tags/:id", counterController.delete_tag);
+
 router.get("/count", counterController.get_count);
 
 router.get("/:id", counterController.get_counter);

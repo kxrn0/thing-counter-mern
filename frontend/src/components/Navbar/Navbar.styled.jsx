@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const SCNavbar = styled.nav`
-  background: #d7b6b6;
+  background: #acadc8;
   padding: 20px;
 
   a {

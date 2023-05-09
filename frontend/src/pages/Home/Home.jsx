@@ -150,7 +150,7 @@ export default function Home() {
 
   return (
     <SCHome>
-      <div>
+      <div className="counters">
         {currentCounters.map((counter) => (
           <Counter
             key={counter._id}
