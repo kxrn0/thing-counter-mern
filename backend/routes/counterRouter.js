@@ -16,6 +16,8 @@ router.get("/image/:id", counterController.get_image);
 
 router.get("/tags", counterController.get_tags);
 
+router.post("/add-tag/:id", counterController.add_tag_to_counter);
+
 router.delete("/tags/:id", counterController.delete_tag);
 
 router.get("/count", counterController.get_count);

@@ -88,6 +88,22 @@ exports.get_tags = async (req, res) => {
   }
 };
 
+exports.add_tag_to_counter = async (req, res) => {
+  const counterId = req.params.id;
+  const tagId = req.body.tagId;
+  const counter = await Counter.findById(counterId);
+
+  counter.tags.push(tagId);
+  await counter.save();
+
+  console.log("counter id:");
+  console.log(counterId);
+  console.log("tag id:");
+  console.log(tagId);
+
+  res.status(200).json({ message: "done!" });
+};
+
 exports.delete_tag = async (req, res) => {
   const id = req.params.id;
   const tag = await Tag.findById(id);

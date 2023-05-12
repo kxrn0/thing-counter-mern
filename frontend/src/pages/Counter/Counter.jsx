@@ -104,6 +104,45 @@ export default function Counter() {
     }
   }
 
+  async function add_tag(tag) {
+    console.log(tag);
+
+    try {
+      const response = await fetch(
+        `http://localhost:9999/api/counters/add-tag/${counter._id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ tagId: tag._id }),
+        }
+      );
+      const json = await response.json();
+
+      if (response.ok) {
+        console.log("ok!");
+        const newTags = [...counter.tags, { name: tag.name, _id: tag._id }];
+
+        dispatch_counter_action({
+          type: "ADD_COUNTER_DETAIL",
+          payload: {
+            key: "counters",
+            value: newTags,
+          },
+        });
+        setCounter((prev) => ({ ...prev, tags: newTags }));
+      } else {
+        console.log("not ok!");
+      }
+
+      console.log(json);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     setCounter(counters.find((counter) => counter._id === counterId));
   }, []);
@@ -158,6 +197,7 @@ export default function Counter() {
     <SCCounter>
       {counter && (
         <div>
+          <button onClick={() => console.log(counter)}>counter</button>
           <Dialog shown={displaying} close={() => setDisplaying(false)}>
             <Image src={imageRef.current} alt={counter.name} />
           </Dialog>
@@ -193,9 +233,9 @@ export default function Counter() {
             </div>
           </div>
           <div className="count">
-            <button>+</button>
+            <button onClick={(event) => count_internally(event, 1)}>+</button>
             <p>{counter.count}</p>
-            <button>-</button>
+            <button onClick={(event) => count_internally(event, -1)}>-</button>
           </div>
           <div className="tags-section">
             <label htmlFor="tag-input">
@@ -217,7 +257,7 @@ export default function Counter() {
                   )
                   .map((tag) => (
                     <span key={tag.name} className="tag">
-                      <button>#{tag.name}</button>
+                      <button onClick={() => add_tag(tag)}>#{tag.name}</button>
                     </span>
                   ))}
               </Drawer>
