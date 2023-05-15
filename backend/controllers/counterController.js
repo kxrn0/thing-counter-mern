@@ -90,18 +90,31 @@ exports.get_tags = async (req, res) => {
 
 exports.add_tag_to_counter = async (req, res) => {
   const counterId = req.params.id;
-  const tagId = req.body.tagId;
   const counter = await Counter.findById(counterId);
+  const name = req.body.tag;
+  const reg = RegExp(`^${name}$`, "i");
+  const userId = req.user._id;
+  const existing = await Tag.findOne({ name: reg, userId });
+  let tag;
 
-  counter.tags.push(tagId);
-  await counter.save();
+  if (existing) {
+    console.log(existing);
+    counter.tags.push(existing._id);
 
-  console.log("counter id:");
-  console.log(counterId);
-  console.log("tag id:");
-  console.log(tagId);
+    await counter.save();
 
-  res.status(200).json({ message: "done!" });
+    tag = existing;
+  } else {
+    const newTag = new Tag({ userId, name });
+
+    await newTag.save();
+    counter.tags.push(newTag._id);
+    await counter.save();
+
+    tag = newTag;
+  }
+
+  res.status(200).json({ tag });
 };
 
 exports.delete_tag = async (req, res) => {

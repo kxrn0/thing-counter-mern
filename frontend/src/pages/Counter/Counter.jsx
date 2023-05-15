@@ -104,6 +104,24 @@ export default function Counter() {
     }
   }
 
+  async function handle_tag_submission(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const value = form["tag"].value.trim();
+
+    form.reset();
+
+    if (!value) return;
+
+    const reg = new RegExp(value, "i");
+
+    if (counter.tags.some((tag) => reg.test(tag.name))) return;
+
+    console.log(`tag: ${value}`);
+    console.log("passed test");
+  }
+
   async function add_tag(tag) {
     console.log(tag);
 
@@ -116,28 +134,32 @@ export default function Counter() {
             Authorization: `Bearer ${user.token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ tagId: tag._id }),
+          // body: JSON.stringify({ tagId: tag._id }),
+          body: JSON.stringify({ tag: tag }),
         }
       );
       const json = await response.json();
 
-      if (response.ok) {
-        console.log("ok!");
-        const newTags = [...counter.tags, { name: tag.name, _id: tag._id }];
-
-        dispatch_counter_action({
-          type: "ADD_COUNTER_DETAIL",
-          payload: {
-            key: "counters",
-            value: newTags,
-          },
-        });
-        setCounter((prev) => ({ ...prev, tags: newTags }));
-      } else {
-        console.log("not ok!");
-      }
-
       console.log(json);
+
+      // if (response.ok) {
+      //   console.log("ok!");
+      //   const newTags = [...counter.tags, { name: tag.name, _id: tag._id }];
+
+      //   dispatch_counter_action({
+      //     type: "ADD_COUNTER_DETAIL",
+      //     payload: {
+      //       counterId: counter._id,
+      //       key: "tags",
+      //       value: newTags,
+      //     },
+      //   });
+      //   setCounter((prev) => ({ ...prev, tags: newTags }));
+      // } else {
+      //   console.log("not ok!");
+      // }
+
+      // console.log(json);
     } catch (error) {
       console.log(error);
     }
@@ -201,25 +223,6 @@ export default function Counter() {
           <Dialog shown={displaying} close={() => setDisplaying(false)}>
             <Image src={imageRef.current} alt={counter.name} />
           </Dialog>
-          {/* <button>open dialog</button>
-          <button onClick={() => console.log(counter)}>counter</button>
-          <button onClick={delete_counter}>Delete Counter</button>
-          <img src={url} alt="counter image" />
-          <p>Counter page</p>
-          <button onClick={(event) => count_internally(event, 1)}>+</button>
-          <p>count: {counter.count}</p>
-          <button onClick={(event) => count_internally(event, -1)}>-</button>
-          <p>name: {counter.name}</p>
-          <p>description: {counter.description}</p>
-          <p>index: ${counter.index}</p>
-          <button onClick={open_image}>
-            {displaying ? "close" : "open"} image
-          </button>
-          {counter.tags.map((tag) => (
-            <span key={tag._id}>~~{tag.name}~~</span>
-          ))} */}
-          {/* <Image src={url} alt={counter.name} /> */}
-
           <button>
             <FontAwesomeIcon icon={faTrash} />
           </button>
@@ -238,10 +241,12 @@ export default function Counter() {
             <button onClick={(event) => count_internally(event, -1)}>-</button>
           </div>
           <div className="tags-section">
-            <label htmlFor="tag-input">
-              <input type="text" id="tag-input" />
-              <button>#add_tag</button>
-            </label>
+            <form onSubmit={handle_tag_submission}>
+              <label htmlFor="tag-input">
+                <input type="text" id="tag-input" name="tag" />
+                <button>#add_tag</button>
+              </label>
+            </form>
             <div className="current-tags">
               {counter.tags.map((tag) => (
                 <span key={tag.name} className="tag">
@@ -257,7 +262,9 @@ export default function Counter() {
                   )
                   .map((tag) => (
                     <span key={tag.name} className="tag">
-                      <button onClick={() => add_tag(tag)}>#{tag.name}</button>
+                      <button onClick={() => add_tag(tag.name)}>
+                        #{tag.name}
+                      </button>
                     </span>
                   ))}
               </Drawer>

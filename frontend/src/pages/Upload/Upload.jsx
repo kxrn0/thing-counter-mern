@@ -44,7 +44,7 @@ export default function Upload() {
       payload: { ...counter, index: 1 },
     });
 
-    navigate(`/counter/${counter._id}`, { state: counter });
+    navigate(`/counter/${counter._id}`, { state: counter._id });
   }
 
   return (
