@@ -118,8 +118,31 @@ export default function Counter() {
 
     if (counter.tags.some((tag) => reg.test(tag.name))) return;
 
-    console.log(`tag: ${value}`);
-    console.log("passed test");
+    const response = await fetch(
+      `http://localhost:9999/api/counters/add-tag/${counter._id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tag: value }),
+      }
+    );
+    const json = await response.json();
+    const { tag: tagRes } = json;
+
+    if (response.ok) {
+      const newTags = [...counter.tags, { name: tagRes.name, _id: tagRes._id }];
+
+      dispatch_counter_action({
+        type: "ADD_COUNTER_DETAIL",
+        payload: { counterId: counter._id, key: "tags", value: newTags },
+      });
+      setCounter((prev) => ({ ...prev, tags: newTags }));
+    } else {
+      console.log("not ok!");
+    }
   }
 
   async function add_tag(tag) {
@@ -134,32 +157,47 @@ export default function Counter() {
             Authorization: `Bearer ${user.token}`,
             "Content-Type": "application/json",
           },
-          // body: JSON.stringify({ tagId: tag._id }),
           body: JSON.stringify({ tag: tag }),
+        }
+      );
+      const json = await response.json();
+      const { tag: tagRes } = json;
+
+      console.log(json);
+
+      if (response.ok) {
+        const newTags = [
+          ...counter.tags,
+          { name: tagRes.name, _id: tagRes._id },
+        ];
+
+        dispatch_counter_action({
+          type: "ADD_COUNTER_DETAIL",
+          payload: { counterId: counter._id, key: "tags", value: newTags },
+        });
+        setCounter((prev) => ({ ...prev, tags: newTags }));
+      } else console.log("not ok!");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function delete_tag(tagId) {
+    try {
+      const response = await fetch(
+        `http://localhost:9999/api/counters/tags/${counter._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ tagId }),
         }
       );
       const json = await response.json();
 
       console.log(json);
-
-      // if (response.ok) {
-      //   console.log("ok!");
-      //   const newTags = [...counter.tags, { name: tag.name, _id: tag._id }];
-
-      //   dispatch_counter_action({
-      //     type: "ADD_COUNTER_DETAIL",
-      //     payload: {
-      //       counterId: counter._id,
-      //       key: "tags",
-      //       value: newTags,
-      //     },
-      //   });
-      //   setCounter((prev) => ({ ...prev, tags: newTags }));
-      // } else {
-      //   console.log("not ok!");
-      // }
-
-      // console.log(json);
     } catch (error) {
       console.log(error);
     }
@@ -250,7 +288,7 @@ export default function Counter() {
             <div className="current-tags">
               {counter.tags.map((tag) => (
                 <span key={tag.name} className="tag">
-                  <button>x</button>
+                  <button onClick={() => delete_tag(tag._id)}>x</button>
                   {tag.name}
                 </span>
               ))}

@@ -98,7 +98,6 @@ exports.add_tag_to_counter = async (req, res) => {
   let tag;
 
   if (existing) {
-    console.log(existing);
     counter.tags.push(existing._id);
 
     await counter.save();
@@ -118,10 +117,16 @@ exports.add_tag_to_counter = async (req, res) => {
 };
 
 exports.delete_tag = async (req, res) => {
-  const id = req.params.id;
-  const tag = await Tag.findById(id);
+  // const id = req.params.id;
+  // const tag = await Tag.findById(id);
 
-  res.status(200).json({ tag });
+  // res.status(200).json({ tag });
+
+  const counterId = req.params.id;
+  const tagId = req.body.tagId;
+  const counter = await Counter.findById(counterId);
+
+
 };
 
 exports.get_count = async (req, res) => {
@@ -197,11 +202,8 @@ exports.patch_counter = async (req, res) => {};
 
 exports.delete_counter = async (req, res) => {
   const { id } = req.params;
-
   const counter = await Counter.findByIdAndDelete(id);
-
-  if (!counter) return res.status(401).json({ error: "No such counter!" });
-
+  // if (!counter) return res.status(401).json({ error: "No such counter!" });
   const { tags } = counter;
   const orphanedTags = [];
 
