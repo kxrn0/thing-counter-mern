@@ -122,11 +122,25 @@ exports.delete_tag = async (req, res) => {
 
   // res.status(200).json({ tag });
 
-  const counterId = req.params.id;
-  const tagId = req.body.tagId;
-  const counter = await Counter.findById(counterId);
+  try {
+    const counterId = req.params.id;
+    const tagId = req.body.tagId;
+    const counter = await Counter.findById(counterId);
+    const exists = await Counter.exists({
+      _id: { $ne: counterId },
+      tags: tagId,
+    });
 
+    if (!exists) await Tag.findByIdAndDelete(tagId);
 
+    counter.tags = counter.tags.filter((other) => other.toString() !== tagId);
+
+    await counter.save();
+
+    res.status(200).json({ tagId });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.get_count = async (req, res) => {

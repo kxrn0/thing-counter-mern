@@ -197,6 +197,16 @@ export default function Counter() {
       );
       const json = await response.json();
 
+      if (response.ok) {
+        const newTags = counter.tags.filter((other) => other._id !== tagId);
+
+        dispatch_counter_action({
+          type: "ADD_COUNTER_DETAIL",
+          payload: { counterId: counter._id, key: "tags", value: newTags },
+        });
+        setCounter((prev) => ({ ...prev, tags: newTags }));
+      } else console.log("not ok!");
+
       console.log(json);
     } catch (error) {
       console.log(error);
