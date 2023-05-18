@@ -19,7 +19,7 @@ export default function Counter() {
   const { state: counterId } = useLocation();
   const { user } = useAuthContext();
   const { counters, dispatch: dispatch_counter_action } = useCounterContext();
-  const { tags } = useTagContext();
+  const { tags, dispatch: dispatch_tag_action } = useTagContext();
   const navigate = useNavigate();
   const imageRef = useRef(null);
 
@@ -104,7 +104,7 @@ export default function Counter() {
     }
   }
 
-  async function handle_tag_submission(event) {
+  function handle_tag_submission(event) {
     event.preventDefault();
 
     const form = event.target;
@@ -114,35 +114,11 @@ export default function Counter() {
 
     if (!value) return;
 
-    const reg = new RegExp(value, "i");
+    const reg = new RegExp(`^${value}$`, "i");
 
     if (counter.tags.some((tag) => reg.test(tag.name))) return;
 
-    const response = await fetch(
-      `http://localhost:9999/api/counters/add-tag/${counter._id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tag: value }),
-      }
-    );
-    const json = await response.json();
-    const { tag: tagRes } = json;
-
-    if (response.ok) {
-      const newTags = [...counter.tags, { name: tagRes.name, _id: tagRes._id }];
-
-      dispatch_counter_action({
-        type: "ADD_COUNTER_DETAIL",
-        payload: { counterId: counter._id, key: "tags", value: newTags },
-      });
-      setCounter((prev) => ({ ...prev, tags: newTags }));
-    } else {
-      console.log("not ok!");
-    }
+    add_tag(value);
   }
 
   async function add_tag(tag) {
@@ -175,6 +151,10 @@ export default function Counter() {
           type: "ADD_COUNTER_DETAIL",
           payload: { counterId: counter._id, key: "tags", value: newTags },
         });
+
+        if (!tags.some((tag) => tag._id === tagRes._id))
+          dispatch_tag_action({ type: "ADD_TAG", payload: tagRes });
+
         setCounter((prev) => ({ ...prev, tags: newTags }));
       } else console.log("not ok!");
     } catch (error) {
@@ -196,6 +176,7 @@ export default function Counter() {
         }
       );
       const json = await response.json();
+      const { orphaned } = json;
 
       if (response.ok) {
         const newTags = counter.tags.filter((other) => other._id !== tagId);
@@ -204,10 +185,16 @@ export default function Counter() {
           type: "ADD_COUNTER_DETAIL",
           payload: { counterId: counter._id, key: "tags", value: newTags },
         });
+
+        if (orphaned) {
+          dispatch_tag_action({
+            type: "REMOVE_TAG",
+            payload: tagId,
+          });
+        }
+
         setCounter((prev) => ({ ...prev, tags: newTags }));
       } else console.log("not ok!");
-
-      console.log(json);
     } catch (error) {
       console.log(error);
     }

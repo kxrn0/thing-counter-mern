@@ -6,6 +6,12 @@ export function tag_reducer(state, action) {
   switch (action.type) {
     case "SET_TAGS":
       return { tags: action.payload };
+    case "REMOVE_TAG":
+      return {
+        tags: state.tags.filter((tag) => tag._id !== action.payload),
+      };
+    case "ADD_TAG":
+      return { tags: [...state.tags, action.payload] };
     default:
       return state;
   }

@@ -117,11 +117,6 @@ exports.add_tag_to_counter = async (req, res) => {
 };
 
 exports.delete_tag = async (req, res) => {
-  // const id = req.params.id;
-  // const tag = await Tag.findById(id);
-
-  // res.status(200).json({ tag });
-
   try {
     const counterId = req.params.id;
     const tagId = req.body.tagId;
@@ -137,7 +132,7 @@ exports.delete_tag = async (req, res) => {
 
     await counter.save();
 
-    res.status(200).json({ tagId });
+    res.status(200).json({ tagId, orphaned: exists ? false : true });
   } catch (error) {
     console.log(error);
   }

@@ -22,6 +22,7 @@ export default function Home() {
 
   useEffect(() => {
     async function get_tags() {
+      console.log("fetching tags");
       const response = await fetch("http://localhost:9999/api/counters/tags", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
@@ -30,7 +31,7 @@ export default function Home() {
       if (response.ok) dispatch_tag_action({ type: "SET_TAGS", payload: json });
     }
 
-    if (user) get_tags();
+    if (user && !tags.length) get_tags();
   }, [user]);
 
   useEffect(() => {

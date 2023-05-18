@@ -7,16 +7,13 @@ import useAuthContext from "./hooks/useAuthContext";
 import Upload from "./pages/Upload/Upload";
 import Counter from "./pages/Counter/Counter";
 import "./style.css";
-import useCounterContext from "./hooks/useCounterContext";
 
 function App() {
   const { user } = useAuthContext();
-  const { counters } = useCounterContext();
 
   return (
     <div className="App">
       <BrowserRouter>
-        <button onClick={() => console.log(counters)}>counter store</button>
         <Navbar />
         <Routes>
           <Route
